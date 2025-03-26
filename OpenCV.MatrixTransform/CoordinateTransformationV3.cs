@@ -22,7 +22,7 @@ public class CoordinateTransformationV3
         a33 = matrix.At<double>(2, 2);
     }
 
-    public IList<IList<Point>> GetPath(IList<IList<Point>> paths, int width, int height)
+    public IList<IList<Point>> GetPath(IList<IList<Point>> paths)
     {
         if (paths == null || paths.Count == 0) throw new ArgumentException($"{nameof(paths)}不能为空");
 
