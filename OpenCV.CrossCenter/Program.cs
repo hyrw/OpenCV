@@ -23,7 +23,7 @@ Cv2.MorphologyEx(imgThresh, imgOpen, MorphTypes.Open, kernel);
 // 骨架化
 using Mat skel = Skeletonize(imgOpen);
 CVOperation.ImShow("skel", skel);
-Cv2.ImWrite(@"C:\Users\Coder\AppData\Local\Temp\opencv\skel.png", skel);
+// Cv2.ImWrite(@"C:\Users\Coder\AppData\Local\Temp\opencv\skel.png", skel);
 Cv2.WaitKey();
 
 // 检测交叉点
