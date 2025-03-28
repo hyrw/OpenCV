@@ -59,7 +59,7 @@ static Mat DetectCrossCenters(Mat skeleton)
     };
 
     // 计算连接数
-    using Mat neighborCount = new Mat();
+    using Mat neighborCount = new Mat(); // 每一点表示当前点的邻居数量
     Cv2.Filter2D(binary / 255, neighborCount, -1, InputArray.Create(neighborKernel));
 
     // 检测交叉点
