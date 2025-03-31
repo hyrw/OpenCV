@@ -2,7 +2,7 @@
 using OpenCvSharp.XImgProc;
 using ShortCircuitDetect.Lib;
 
-string file = @"C:/Users/Coder/Pictures/calibration_images/20190313190608982.png";
+string file = @"C:/Users/Coder/Pictures/calibration_images/cross2.png";
 
 // 读取图像
 using Mat img = Cv2.ImRead(file, ImreadModes.Grayscale);
@@ -27,24 +27,18 @@ CVOperation.ImShow("skel", skel);
 Cv2.WaitKey();
 
 // 检测交叉点
-using Mat crossPoints = DetectCrossCenters(skel);
+IList<Point> crossPoints = DetectCrossCenters(skel);
 
 // 显示结果
 using Mat imgColor = Cv2.ImRead(file);
-using Mat dilateCrossPoints = DilateCrossPoints(crossPoints, new Size(3, 3));
-imgColor.SetTo(new Scalar(0, 0, 255), dilateCrossPoints);
+foreach (var p in crossPoints)
+{
+    Cv2.Circle(imgColor, p.X, p.Y, 1, Scalar.Red, -1);
+}
 Cv2.ImShow("Cross Points on Original", imgColor);
 Cv2.WaitKey();
 
-static Mat DilateCrossPoints(Mat crossPoints, Size size)
-{
-    Mat dilatedCross = new Mat();
-    using Mat kernel = Mat.Ones(size, MatType.CV_8UC1);
-    Cv2.Dilate(crossPoints, dilatedCross, kernel);
-    return dilatedCross;
-}
-
-static Mat DetectCrossCenters(Mat skeleton)
+static IList<Point> DetectCrossCenters(Mat skeleton)
 {
     // 确保输入是二值图像
     using Mat binary = new Mat();
@@ -63,36 +57,35 @@ static Mat DetectCrossCenters(Mat skeleton)
     Cv2.Filter2D(binary / 255, neighborCount, -1, InputArray.Create(neighborKernel));
 
     // 检测交叉点
-    Mat crossPoints = FindCrossPoints(neighborCount, binary);
-
-    crossPoints.ConvertTo(crossPoints, MatType.CV_8UC1, 255);
-
-    return crossPoints;
+    return FindCrossPoints(neighborCount, binary);
 }
 
 static Mat Skeletonize(Mat inputImage)
 {
-    // OpencvSharp的细化提取没有Skimage的好，线段接触到图像边缘时会变成T，Skimage的不会
+    // Opencv的细化提取没有Skimage的好，线段接触到图像边缘时会变成T，Skimage的不会
     // 可以考虑将图像的四边缘置黑
     Mat skel = new(inputImage.Size(), inputImage.Type());
     CvXImgProc.Thinning(inputImage, skel, ThinningTypes.ZHANGSUEN);
     return skel;
 }
 
-static Mat FindCrossPoints(Mat neighborCount, Mat binary)
+static IList<Point> FindCrossPoints(Mat neighborCount, Mat binary)
 {
     int height = binary.Rows;
     int width = binary.Cols;
-    byte[,] crossPoints = new byte[height, width];
+    List<Point> points = [];
 
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            crossPoints[i, j] = (byte)((neighborCount.At<byte>(i, j) >= 3 && binary.At<byte>(i, j) > 0) ? 255 : 0);
+            if (neighborCount.At<byte>(i, j) >= 3 && binary.At<byte>(i, j) > 0)
+            {
+                points.Add(new Point(j, i));
+            }
         }
     }
-    return Mat.FromArray(crossPoints);
+    return points;
 }
 
 
