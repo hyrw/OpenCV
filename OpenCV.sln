@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCV.MatrixTransform", "O
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCV.CrossCenter", "OpenCV.CrossCenter\OpenCV.CrossCenter.csproj", "{2CF821E5-C4B4-4D52-901A-B835057B5948}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LaserPointCorrection", "LaserPointCorrection\LaserPointCorrection.csproj", "{11060AD4-EF03-4E59-A6DE-EF4FCE562497}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{2CF821E5-C4B4-4D52-901A-B835057B5948}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CF821E5-C4B4-4D52-901A-B835057B5948}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CF821E5-C4B4-4D52-901A-B835057B5948}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11060AD4-EF03-4E59-A6DE-EF4FCE562497}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11060AD4-EF03-4E59-A6DE-EF4FCE562497}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11060AD4-EF03-4E59-A6DE-EF4FCE562497}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11060AD4-EF03-4E59-A6DE-EF4FCE562497}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
