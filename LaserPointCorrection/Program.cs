@@ -1,30 +1,44 @@
 ﻿using OpenCvSharp;
 
 // 基于像素坐标点范围
-var laserXRange = (100, 200);
-var laserYRange = (100, 200);
-
-List<Point> srcPoint = GridGenerator.GenerateGrid(laserXRange, laserYRange, 9);
-
-CoordinateCorrection coordinateCorrection = new CoordinateCorrection(laserXRange, laserYRange, 9);
+var laserXRange = (50, 200);
+var laserYRange = (50, 200);
+List<Point> srcPoint = GridGenerator.GenerateGrid(laserXRange, laserYRange, 25);
+// 模拟的假数据
+Point[] samplePoint = [
+    new(52, 48), new(88, 48), new (125, 48), new (161, 48), new(198, 48),
+    new(52, 85), new(88, 85), new (125, 85), new (161, 85), new(198, 85),
+    new(52, 123), new(88, 123), new (125, 123), new (161, 123), new(198, 123),
+    new(52, 160), new(88, 160), new (125, 160), new (161, 160), new(198, 160),
+    //new(52, 198), new(88, 198), new (125, 198), new (162, 198), new(198,198),
+    new(52, 202), new(88, 202), new (125, 202), new (162, 202), new(198,202),
+];
+CoordinateCorrection coordinateCorrection = new CoordinateCorrection(laserXRange, laserYRange, 25);
 coordinateCorrection.Correction();
-IList<Point> result = coordinateCorrection.CorrectionCoordinate(srcPoint);
+IList<Point> result = coordinateCorrection.CorrectionCoordinate(samplePoint);
 
-using Mat color = Mat.Zeros(900, 800, MatType.CV_8UC3);
+using Mat beforImg = Mat.Zeros(900, 800, MatType.CV_8UC3);
+using Mat afterImg = Mat.Zeros(900, 800, MatType.CV_8UC3);
 
-foreach (var p in srcPoint)
+for (int i = 0; i < srcPoint.Count; i++)
 {
-    Cv2.Circle(color, p, 2, Scalar.Green, -1);
+    Point p = srcPoint[i];
+    Point sp = samplePoint[i];
+    Cv2.Circle(beforImg, p, 2, Scalar.Green, -1);
+    Cv2.DrawMarker(beforImg, sp, Scalar.Red, MarkerTypes.Cross, 10);
 }
-Cv2.ImShow("src point", color);
 
-var point = new Point(srcPoint[0].X + 13, srcPoint[0].Y + 13);
-result[0] = point;
-foreach (var p in result)
+for (int i = 0; i < srcPoint.Count; i++)
 {
-    Cv2.DrawMarker(color, p, Scalar.Red, MarkerTypes.Cross, 10);
+    Point p = srcPoint[i];
+    Point r = result[i];
+    Cv2.Circle(afterImg, p, 2, Scalar.Green, -1);
+    Cv2.DrawMarker(afterImg, r, Scalar.Red, MarkerTypes.Cross, 10);
 }
-Cv2.ImShow("fix point", color);
+
+Cv2.ImShow("before", beforImg);
+Cv2.ImShow("after", afterImg);
+
 Cv2.WaitKey();
 
 
@@ -86,7 +100,7 @@ public class CoordinateCorrection
         this.coordinateTransformation = ICoordinateTransformationFactory.Create(
                 crossPoints.Take(srcPoint.Count).ToList(),
                 srcPoint,
-                ICoordinateTransformationFactory.CoordinateTransformationImpl.V1,
+                ICoordinateTransformationFactory.CoordinateTransformationImpl.V5,
                 width,
                 height);
     }

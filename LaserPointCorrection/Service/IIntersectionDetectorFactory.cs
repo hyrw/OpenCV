@@ -10,6 +10,7 @@ public static class ICoordinateTransformationFactory
             CoordinateTransformationImpl.V2 => new CoordinateTransformationV2(from, to, width, height),
             CoordinateTransformationImpl.V3 => new CoordinateTransformationV3(from, to),
             CoordinateTransformationImpl.V4 => new CoordinateTransformationV4(from, to, width, height),
+            CoordinateTransformationImpl.V5 => new CoordinateTransformationV5(from, to),
             _ => throw new ArgumentException(),
         };
     }
@@ -20,5 +21,6 @@ public static class ICoordinateTransformationFactory
         V2,
         V3,
         V4,
+        V5,
     }
 }
