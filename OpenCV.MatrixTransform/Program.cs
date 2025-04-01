@@ -1,80 +1,120 @@
-﻿using OpenCvSharp;
+﻿using MathNet.Numerics;
+using OpenCvSharp;
 
-// 棋盘格参数
-Size boardSize = new Size(4, 6); // 内角点数（列数，行数）
-float squareSize = 25.0f; // 每个方格的物理尺寸（毫米）
+// 50 87 125 162 200
+var grid = GridGenerator.GenerateGrid((50, 200), (50, 200), 25);
+// 模拟的假数据
+Point[] sampleGrid = [
+    new(52, 48), new(88, 48), new (125, 48), new (161, 48), new(198, 48),
+    new(52, 85), new(88, 85), new (125, 85), new (161, 85), new(198, 85),
+    new(52, 123), new(88, 123), new (125, 123), new (161, 123), new(198, 123),
+    new(52, 160), new(88, 160), new (125, 160), new (161, 160), new(198, 160),
+    //new(52, 198), new(88, 198), new (125, 198), new (162, 198), new(198,198),
+    new(52, 202), new(88, 202), new (125, 202), new (162, 202), new(198,202),
+];
+//Point[] sampleGrid = [
+//    new(50, 50), new(87, 50), new (125, 50), new (162, 50), new(200, 50),
+//    new(50, 87), new(87, 87), new (125, 87), new (162, 87), new(200, 87),
+//    new(50, 125), new(87, 125), new (125, 125), new (162, 125), new(200, 125),
+//    new(50, 162), new(87, 162), new (125, 162), new (162, 162), new(200, 162),
+//    new(50, 200), new(87, 200), new (125, 200), new (162, 200), new(200,200),
+//];
 
-// 存储世界坐标和图像坐标
-List<Mat> objectPoints = new List<Mat>();
-List<Mat> imagePoints = new List<Mat>();
 
-// 生成世界坐标点（Z=0）
-List<Point3f> objPoints = new List<Point3f>();
-for (int y = 0; y < boardSize.Height; y++)
+var x = grid.Select(p => (double)p.X);
+var y = grid.Select(p => (double)p.Y);
+double[] dxValues = new double[grid.Count];
+double[] dyValues = new double[grid.Count];
+for (int i = 0; i < grid.Count; i++)
 {
-    for (int x = 0; x < boardSize.Width; x++)
-    {
-        objPoints.Add(new Point3f(x * squareSize, y * squareSize, 0));
-    }
-}
-Mat objPtMat = Mat.FromArray(objPoints.ToArray());
-
-string[] imageFiles = Directory.GetFiles(@"C:\Users\Coder\Pictures\calibration_images\", "*.png");
-Size imageSize = new Size();
-
-foreach (string file in imageFiles)
-{
-    using Mat image = Cv2.ImRead(file);
-    imageSize = image.Size();
-    using Mat gray = image.CvtColor(ColorConversionCodes.BGR2GRAY);
-
-    // 检测棋盘格角点
-    Point2f[] corners;
-    bool found = Cv2.FindChessboardCorners(gray, boardSize, out corners);
-
-    if (found)
-    {
-        // 亚像素精确化
-        Cv2.CornerSubPix(gray, corners, new Size(11, 11), new Size(-1, -1),
-            new TermCriteria(CriteriaTypes.Eps | CriteriaTypes.MaxIter, 30, 0.001));
-
-        // 保存结果
-        imagePoints.Add(Mat.FromArray(corners));
-        objectPoints.Add(objPtMat.Clone());
-        Cv2.DrawChessboardCorners(image, boardSize, corners, true);
-        Cv2.ImShow("test", image);
-        Cv2.WaitKey();
-    }
+    Point p = grid[i];
+    Point sp = sampleGrid[i];
+    //dxValues[i] = sp.X - p.X;
+    //dyValues[i] = sp.Y - p.Y;
+    dxValues[i] = p.X - sp.X;
+    dyValues[i] = p.Y - sp.Y;
 }
 
-Mat cameraMatrix = new Mat();
-Mat distCoeffs = new Mat();
-Mat[] rvecs, tvecs;
+var xInterpolate = Interpolate.Common(x, dxValues);
+var yInterpolate = Interpolate.Common(y, dyValues);
 
-double reprojError = Cv2.CalibrateCamera(
-    objectPoints, imagePoints, imageSize,
-    cameraMatrix, distCoeffs, out rvecs, out tvecs
-);
+Point[] src_points = grid.ToArray();
+Point[] after_points = new Point[src_points.Length];
+for (int i = 0; i < src_points.Length; i++)
+{
+    Point p = src_points[i];
+    double dx = xInterpolate.Interpolate(p.X);
+    double dy = yInterpolate.Interpolate(p.Y);
+    Point point = new()
+    {
+        X = (int)(p.X + dx),
+        Y = (int)(p.Y + dy),
+    };
+    after_points[i] = point;
+}
 
-// 输出结果
-Console.WriteLine($"相机矩阵:\n{cameraMatrix.Dump()}");
-Console.WriteLine($"畸变系数:\n{distCoeffs.Dump()}");
-Console.WriteLine($"平均重投影误差: {reprojError}");
+using Mat beforImg = Mat.Zeros(900, 800, MatType.CV_8UC3);
+using Mat afterImg = Mat.Zeros(900, 800, MatType.CV_8UC3);
 
-// 保存参数
-// using (FileStorage fs = new FileStorage("camera_params.yml", FileStorage.Mode.Write))
-// {
-//     fs.Write("camera_matrix", cameraMatrix);
-//     fs.Write("distortion_coefficients", distCoeffs);
-// }
+for (int i = 0; i < grid.Count; i++)
+{
+    Point srcPoint = grid[i];
+    Point afterPoint = sampleGrid[i];
+    Cv2.Circle(beforImg, srcPoint, 2, Scalar.Green, -1);
+    Cv2.DrawMarker(beforImg, afterPoint, Scalar.Red, MarkerTypes.Cross, 10);
+}
 
-var matrix = Cv2.GetOptimalNewCameraMatrix(cameraMatrix, distCoeffs, imageSize, default, imageSize, out var rect);
+for (int i = 0; i < src_points.Length; i++)
+{
+    Point srcPoint = src_points[i];
+    Point afterPoint = after_points[i];
+    Cv2.Circle(afterImg, srcPoint, 2, Scalar.Green, -1);
+    Cv2.DrawMarker(afterImg, afterPoint, Scalar.Red, MarkerTypes.Cross, 10);
+}
 
-//测试矫正
-Mat testImage = Cv2.ImRead(@"C:\Users\Coder\Pictures\calibration_images\1.png");
-Mat undistorted = new Mat();
-Cv2.Undistort(testImage, undistorted, cameraMatrix, distCoeffs, matrix);
 
-Cv2.ImShow("Original", testImage);
-Cv2.ImShow("Undistorted", undistorted);
-Cv2.WaitKey(0);
+Cv2.ImShow("before", beforImg);
+Cv2.ImShow("after", afterImg);
+
+Cv2.WaitKey();
+
+/// <summary>
+/// 根据范围生成网格点
+/// </summary>
+public static class GridGenerator
+{
+    public static List<Point> GenerateGrid((int Min, int Max) xRange, (int Min, int Max) yRange, int numPoints)
+    {
+        int n = (int)Math.Sqrt(numPoints);
+        var xPoints = Linspace(xRange.Min, xRange.Max, n);
+        var yPoints = Linspace(yRange.Min, yRange.Max, n);
+
+        var grid = new List<Point>();
+        foreach (var y in yPoints)
+        {
+            foreach (var x in xPoints)
+            {
+                grid.Add(new Point(x, y));
+            }
+        }
+        return grid;
+    }
+
+    /// <summary>
+    /// 线性等分向量
+    /// </summary>
+    static IEnumerable<double> Linspace(double start, double end, int num)
+    {
+        if (num <= 1)
+        {
+            yield return start;
+            yield break;
+        }
+
+        double step = (end - start) / (num - 1);
+        for (int i = 0; i < num; i++)
+        {
+            yield return start + i * step;
+        }
+    }
+}
