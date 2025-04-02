@@ -1,5 +1,4 @@
-﻿using MathNet.Numerics;
-using OpenCvSharp;
+﻿using OpenCvSharp;
 
 //using Mat before = Mat.Zeros(900, 800, MatType.CV_8UC3);
 //using Mat after = Mat.Zeros(900, 800, MatType.CV_8UC3);
@@ -12,7 +11,6 @@ using OpenCvSharp;
 //    new (60,125), new (92,125), new (125,125), new (157,125), new (190, 125),
 //    new (56,160), new (90.4,161), new (125,159.6), new (160.3,160.7), new (195,162),
 //    new (50,200), new (86.9,194), new (125,190), new (162,194), new (200,200),
-
 //];
 
 
@@ -91,23 +89,6 @@ class Program
             from y in yTheory
             select new[] { x, y }
         ).ToList();
-
-        //// 桶形畸变模型
-        //var rand = new Random(42);
-        //double errorScale = 0.15;
-        //var pointsReal = new List<double[]>();
-
-        //foreach (var p in pointsTheory)
-        //{
-        //    double x = p[0], y = p[1];
-        //    double rSq = x * x + y * y;
-        //    double distortion = 1 - errorScale * rSq;
-
-        //    // 添加噪声
-        //    double xReal = x * distortion + 0.02 * NextGaussian(rand);
-        //    double yReal = y * distortion + 0.02 * NextGaussian(rand);
-        //    pointsReal.Add(new[] { xReal, yReal });
-        //}
 
         List<double[]> pointsReal = [
                 [50,50], [90,58],[125,60],[158,58],[200,50],
