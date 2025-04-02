@@ -123,9 +123,8 @@ public static class GridGenerator
 {
     public static List<Point> GenerateGrid((int Min, int Max) xRange, (int Min, int Max) yRange, int numPoints)
     {
-        int n = (int)Math.Sqrt(numPoints);
-        var xPoints = Linspace(xRange.Min, xRange.Max, n);
-        var yPoints = Linspace(yRange.Min, yRange.Max, n);
+        var xPoints = Linspace(xRange.Min, xRange.Max, numPoints);
+        var yPoints = Linspace(yRange.Min, yRange.Max, numPoints);
 
         var grid = new List<Point>();
         foreach (var y in yPoints)
