@@ -1,243 +1,83 @@
 ﻿using OpenCvSharp;
 
-//using Mat before = Mat.Zeros(900, 800, MatType.CV_8UC3);
-//using Mat after = Mat.Zeros(900, 800, MatType.CV_8UC3);
+using Mat before = Mat.Zeros(900, 800, MatType.CV_8UC3);
+using Mat after = Mat.Zeros(900, 800, MatType.CV_8UC3);
 
 
-//List<Point> theory = GridGenerator.GenerateGrid((50, 200), (50, 200), 5);
-//List<Point> real = [
-//    new (50,50), new (90,58), new (125,60), new (158,58), new (200,50),
-//    new (56,89), new (90,91.5), new (123.6,94.5), new (160.7,92.8), new (193,89),
-//    new (60,125), new (92,125), new (125,125), new (157,125), new (190, 125),
-//    new (56,160), new (90.4,161), new (125,159.6), new (160.3,160.7), new (195,162),
-//    new (50,200), new (86.9,194), new (125,190), new (162,194), new (200,200),
-//];
+List<Point> theory = GridGenerator.GenerateGrid((50, 200), (50, 200), 5);
+List<Point> real = [
+   new (50,50), new (90,58), new (125,60), new (158,58), new (200,50),
+   new (56,89), new (90,91.5), new (123.6,94.5), new (160.7,92.8), new (193,89),
+   new (60,125), new (92,125), new (125,125), new (157,125), new (190, 125),
+   new (56,160), new (90.4,161), new (125,159.6), new (160.3,160.7), new (195,162),
+   new (50,200), new (86.9,194), new (125,190), new (162,194), new (200,200),
+];
 
+var v6 = new CoordinateTransformationV6(theory, real);
+var fixTheory = v6.GetPath(theory);
 
-
-
-
-class Program
+// 绘制原始点
+foreach (var p in theory)
 {
-    static void Main()
+    Cv2.Circle(before, p, 4, Scalar.Green, -1);
+}
+// 绘制采集点
+foreach (var p in real)
+{
+    Cv2.DrawMarker(before, p, Scalar.Red);
+}
+// 绘制原始点
+foreach (var p in theory)
+{
+    Cv2.Circle(after, p, 4, Scalar.Green, -1);
+}
+// 绘制校正点
+foreach (var p in fixTheory)
+{
+    Cv2.DrawMarker(after, p, Scalar.Red);
+}
+
+Cv2.ImShow("before", before);
+Cv2.ImShow("after", after);
+Cv2.WaitKey();
+
+
+/// <summary>
+/// 根据范围生成网格点
+/// </summary>
+public static class GridGenerator
+{
+    public static List<Point> GenerateGrid((int Min, int Max) xRange, (int Min, int Max) yRange, int numPoints)
     {
-        // 生成理论坐标和实际坐标
-        var (pointsTheory, pointsReal) = GenerateData();
+        var xPoints = Linspace(xRange.Min, xRange.Max, 5);
+        var yPoints = Linspace(yRange.Min, yRange.Max, 5);
 
-        // 拟合校正模型
-        var (coeffX, coeffY) = FitCorrectionModel(pointsTheory, pointsReal);
-
-        // 测试点生成 (5x5网格)
-        var testPoints = (
-            from x in LinSpace(50, 200, 5)
-            from y in LinSpace(50, 200, 5)
-            select new[] { x, y }
-        ).ToList();
-
-        // 生成随机测试点
-        var rand = new Random(123);
-        var testPoints2 = Enumerable.Range(0, 20)
-            .Select(_ => new[] {
-                rand.NextDouble() * 3 - 1.5,
-                rand.NextDouble() * 3 - 1.5
-            }).ToList();
-
-
-        using Mat before = Mat.Zeros(900, 800, MatType.CV_8UC3);
-        using Mat after = Mat.Zeros(900, 800, MatType.CV_8UC3);
-
-        foreach (var p in pointsTheory)
+        var grid = new List<Point>();
+        foreach (var y in yPoints)
         {
-            Cv2.Circle(before, new Point(p[0], p[1]), 4, Scalar.Green, -1);
-        }
-        foreach (var p in pointsReal)
-        {
-            Cv2.DrawMarker(before, new Point(p[0], p[1]), Scalar.Red);
-        }
-        foreach (var p in pointsTheory)
-        {
-            Cv2.Circle(after, new Point(p[0], p[1]), 4, Scalar.Green, -1);
-        }
-        foreach (var p in pointsTheory.Select(p => ApplyCorrection(p, coeffX, coeffY)))
-        {
-            Cv2.DrawMarker(after, new Point(p[0], p[1]), Scalar.Red);
-        }
-
-        Cv2.ImShow("before", before);
-        Cv2.ImShow("after", after);
-        Cv2.WaitKey();
-    }
-
-    // 生成等间距数组
-    static double[] LinSpace(double start, double end, int num)
-    {
-        double[] values = new double[num];
-        double step = (end - start) / (num - 1);
-        for (int i = 0; i < num; i++)
-            values[i] = start + i * step;
-        return values;
-    }
-
-    // 生成理论坐标和实际坐标数据
-    static (List<double[]>, List<double[]>) GenerateData()
-    {
-        // 理论坐标 (5x5网格)
-        var xTheory = LinSpace(50, 200, 5);
-        var yTheory = LinSpace(50, 200, 5);
-        var pointsTheory = (
-            from x in xTheory
-            from y in yTheory
-            select new[] { x, y }
-        ).ToList();
-
-        List<double[]> pointsReal = [
-            [50,50], [90,58],[125,60],[158,58],[200,50],
-            [56,89], [90,91.5],[123.6,94.5],[160.7,92.8],[193,89],
-            [60,125], [92,125], [125,125], [157,125], [190, 125],
-            [56,160], [90.4,161],[125,159.6],[160.3,160.7],[195,162],
-            [50,200], [86.9,194],[125,190],[162,194],[200,200],];
-        return (pointsTheory, pointsReal);
-    }
-
-    // 高斯随机数生成
-    static double NextGaussian(Random rand)
-    {
-        double u1 = 1.0 - rand.NextDouble();
-        double u2 = 1.0 - rand.NextDouble();
-        return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-    }
-
-    // 拟合校正模型
-    static (double[] coeffX, double[] coeffY) FitCorrectionModel(
-        List<double[]> theory, List<double[]> real)
-    {
-        // 构建系数矩阵
-        double[,] A = new double[real.Count, 6];
-        for (int i = 0; i < real.Count; i++)
-        {
-            double x = real[i][0], y = real[i][1];
-            A[i, 0] = 1;
-            A[i, 1] = x;
-            A[i, 2] = y;
-            A[i, 3] = x * x;
-            A[i, 4] = x * y;
-            A[i, 5] = y * y;
-        }
-
-        // 构建目标向量
-        double[] bX = theory.Select(p => p[0]).ToArray();
-        double[] bY = theory.Select(p => p[1]).ToArray();
-
-        // 计算系数 (A^T A)^-1 A^T b
-        var AT = Transpose(A);
-        var ATA = Multiply(AT, A);
-        var ATbX = Multiply(AT, bX);
-        var ATbY = Multiply(AT, bY);
-
-        return (Solve(ATA, ATbX), Solve(ATA, ATbY));
-    }
-
-    // 矩阵转置
-    static double[,] Transpose(double[,] matrix)
-    {
-        int rows = matrix.GetLength(0);
-        int cols = matrix.GetLength(1);
-        double[,] result = new double[cols, rows];
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++)
-                result[j, i] = matrix[i, j];
-        return result;
-    }
-
-    // 矩阵乘法
-    static double[,] Multiply(double[,] a, double[,] b)
-    {
-        int aRows = a.GetLength(0);
-        int aCols = a.GetLength(1);
-        int bCols = b.GetLength(1);
-        double[,] result = new double[aRows, bCols];
-        for (int i = 0; i < aRows; i++)
-            for (int k = 0; k < aCols; k++)
-                for (int j = 0; j < bCols; j++)
-                    result[i, j] += a[i, k] * b[k, j];
-        return result;
-    }
-
-    // 矩阵与向量乘法
-    static double[] Multiply(double[,] a, double[] b)
-    {
-        int rows = a.GetLength(0);
-        int cols = a.GetLength(1);
-        double[] result = new double[rows];
-        for (int i = 0; i < rows; i++)
-            for (int k = 0; k < cols; k++)
-                result[i] += a[i, k] * b[k];
-        return result;
-    }
-
-    // 求解线性方程组 (高斯消元法)
-    static double[] Solve(double[,] A, double[] b)
-    {
-        int n = b.Length;
-        double[,] aug = new double[n, n + 1];
-
-        // 构建增广矩阵
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < n; j++)
-                aug[i, j] = A[i, j];
-            aug[i, n] = b[i];
-        }
-
-        // 前向消元
-        for (int i = 0; i < n; i++)
-        {
-            // 寻找主元
-            int maxRow = i;
-            for (int k = i + 1; k < n; k++)
-                if (Math.Abs(aug[k, i]) > Math.Abs(aug[maxRow, i]))
-                    maxRow = k;
-
-            // 交换行
-            if (maxRow != i)
-                for (int k = i; k <= n; k++)
-                    (aug[i, k], aug[maxRow, k]) = (aug[maxRow, k], aug[i, k]);
-
-            // 归一化
-            double div = aug[i, i];
-            if (div == 0) throw new InvalidOperationException("矩阵奇异");
-
-            for (int k = i; k <= n; k++)
-                aug[i, k] /= div;
-
-            // 消元
-            for (int k = i + 1; k < n; k++)
+            foreach (var x in xPoints)
             {
-                double factor = aug[k, i];
-                for (int j = i; j <= n; j++)
-                    aug[k, j] -= factor * aug[i, j];
+                grid.Add(new Point(x, y));
             }
         }
-
-        // 回代
-        double[] x = new double[n];
-        for (int i = n - 1; i >= 0; i--)
-        {
-            x[i] = aug[i, n];
-            for (int j = i + 1; j < n; j++)
-                x[i] -= aug[i, j] * x[j];
-        }
-        return x;
+        return grid;
     }
 
-    // 应用校正
-    static double[] ApplyCorrection(double[] point, double[] coeffX, double[] coeffY)
+    /// <summary>
+    /// 线性等分向量
+    /// </summary>
+    static IEnumerable<double> Linspace(double start, double end, int num)
     {
-        double x = point[0], y = point[1];
-        double[] terms = { 1, x, y, x * x, x * y, y * y };
-        return new[] {
-            terms.Zip(coeffX, (t, c) => t * c).Sum(),
-            terms.Zip(coeffY, (t, c) => t * c).Sum()
-        };
+        if (num <= 1)
+        {
+            yield return start;
+            yield break;
+        }
+
+        double step = (end - start) / (num - 1);
+        for (int i = 0; i < num; i++)
+        {
+            yield return start + i * step;
+        }
     }
 }
