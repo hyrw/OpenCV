@@ -95,12 +95,13 @@ public class CoordinateCorrection
         IList<Point> srcPoint = LaserMarking(this.laserXRange, this.laserXRange, this.numPoints);
         using Mat gray = AcquireCameraImage();
         IList<Point> crossPoints = FindIntersectionPoints(gray);
+        if (crossPoints is null || crossPoints.Count != srcPoint.Count) throw new Exception("理论点和标刻点数量不一致");
         int width = this.laserXRange.Max - this.laserXRange.Min;
         int height = this.laserYRange.Max - this.laserYRange.Min;
         this.coordinateTransformation = ICoordinateTransformationFactory.Create(
                 crossPoints.Take(srcPoint.Count).ToList(),
                 srcPoint,
-                ICoordinateTransformationFactory.CoordinateTransformationImpl.V5,
+                ICoordinateTransformationFactory.CoordinateTransformationImpl.V6,
                 width,
                 height);
     }

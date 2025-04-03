@@ -2,15 +2,16 @@ using OpenCvSharp;
 
 public static class ICoordinateTransformationFactory
 {
-    public static ICoordinateTransformation Create(IList<Point> from, IList<Point> to, CoordinateTransformationImpl implVersion, int width, int height)
+    public static ICoordinateTransformation Create(IList<Point> theory, IList<Point> real, CoordinateTransformationImpl implVersion, int width, int height)
     {
         return implVersion switch
         {
-            CoordinateTransformationImpl.V1 => new CoordinateTransformationV1(from, to),
-            CoordinateTransformationImpl.V2 => new CoordinateTransformationV2(from, to, width, height),
-            CoordinateTransformationImpl.V3 => new CoordinateTransformationV3(from, to),
-            CoordinateTransformationImpl.V4 => new CoordinateTransformationV4(from, to, width, height),
-            CoordinateTransformationImpl.V5 => new CoordinateTransformationV5(from, to),
+            CoordinateTransformationImpl.V1 => new CoordinateTransformationV1(theory, real),
+            CoordinateTransformationImpl.V2 => new CoordinateTransformationV2(theory, real, width, height),
+            CoordinateTransformationImpl.V3 => new CoordinateTransformationV3(theory, real),
+            CoordinateTransformationImpl.V4 => new CoordinateTransformationV4(theory, real, width, height),
+            CoordinateTransformationImpl.V5 => new CoordinateTransformationV5(theory, real),
+            CoordinateTransformationImpl.V6 => new CoordinateTransformationV6(theory, real),
             _ => throw new ArgumentException(),
         };
     }
@@ -22,5 +23,6 @@ public static class ICoordinateTransformationFactory
         V3,
         V4,
         V5,
+        V6,
     }
 }
