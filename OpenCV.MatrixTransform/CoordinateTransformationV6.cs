@@ -1,5 +1,8 @@
 using OpenCvSharp;
 
+///<summary>
+///多项式拟合
+///</summary>
 public class CoordinateTransformationV6
 {
     readonly double[] coeffX;

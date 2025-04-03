@@ -1,14 +1,17 @@
 using OpenCvSharp;
 
+///<summary>
+///多项式拟合
+///</summary>
 public class CoordinateTransformationV6 : ICoordinateTransformation
 {
     readonly double[] coeffX;
     readonly double[] coeffY;
 
-    public CoordinateTransformationV6(IList<Point> src, IList<Point> dst)
+    public CoordinateTransformationV6(IList<Point> theory, IList<Point> real)
     {
-        (this.coeffX, this.coeffY) = FitCorrectionModel(src.Select(p => new double[] { p.X, p.Y }).ToList(),
-                           dst.Select(p => new double[] { p.X, p.Y }).ToList());
+        (this.coeffX, this.coeffY) = FitCorrectionModel(theory.Select(p => new double[] { p.X, p.Y }).ToList(),
+                           real.Select(p => new double[] { p.X, p.Y }).ToList());
     }
 
     public IList<Point> GetPath(IList<Point> path)
