@@ -1,4 +1,3 @@
-
 using OpenCvSharp;
 
 public class CoordinateTransformationV6
@@ -9,7 +8,7 @@ public class CoordinateTransformationV6
     public CoordinateTransformationV6(IList<Point> src, IList<Point> dst)
     {
         (this.coeffX, this.coeffY) = FitCorrectionModel(src.Select(p => new double[] { p.X, p.Y }).ToList(),
-                           dst.Select(p => new double[] { p.X, p.Y }).ToList());
+                dst.Select(p => new double[] { p.X, p.Y }).ToList());
     }
 
     public IList<Point> GetPath(IList<Point> path)
@@ -22,8 +21,7 @@ public class CoordinateTransformationV6
     }
 
     // 拟合校正模型
-    static (double[] coeffX, double[] coeffY) FitCorrectionModel(
-        List<double[]> theory, List<double[]> real)
+    static (double[] coeffX, double[] coeffY) FitCorrectionModel(List<double[]> theory, List<double[]> real)
     {
         // 构建系数矩阵
         double[,] A = new double[real.Count, 6];
