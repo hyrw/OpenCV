@@ -21,45 +21,6 @@ public class CoordinateTransformationV6
             .ToList();
     }
 
-    // 生成等间距数组
-    static double[] LinSpace(double start, double end, int num)
-    {
-        double[] values = new double[num];
-        double step = (end - start) / (num - 1);
-        for (int i = 0; i < num; i++)
-            values[i] = start + i * step;
-        return values;
-    }
-
-    // 生成理论坐标和实际坐标数据
-    static (List<double[]>, List<double[]>) GenerateData()
-    {
-        // 理论坐标 (5x5网格)
-        var xTheory = LinSpace(50, 200, 5);
-        var yTheory = LinSpace(50, 200, 5);
-        var pointsTheory = (
-            from x in xTheory
-            from y in yTheory
-            select new[] { x, y }
-        ).ToList();
-
-        List<double[]> pointsReal = [
-            [50,50], [90,58],[125,60],[158,58],[200,50],
-            [56,89], [90,91.5],[123.6,94.5],[160.7,92.8],[193,89],
-            [60,125], [92,125], [125,125], [157,125], [190, 125],
-            [56,160], [90.4,161],[125,159.6],[160.3,160.7],[195,162],
-            [50,200], [86.9,194],[125,190],[162,194],[200,200],];
-        return (pointsTheory, pointsReal);
-    }
-
-    // 高斯随机数生成
-    static double NextGaussian(Random rand)
-    {
-        double u1 = 1.0 - rand.NextDouble();
-        double u2 = 1.0 - rand.NextDouble();
-        return Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-    }
-
     // 拟合校正模型
     static (double[] coeffX, double[] coeffY) FitCorrectionModel(
         List<double[]> theory, List<double[]> real)
