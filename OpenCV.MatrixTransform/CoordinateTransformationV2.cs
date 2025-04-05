@@ -68,7 +68,7 @@ public class CoordinateTransformationV2
         dY = matrixD.At<double>(1, 2);
     }
 
-    public IList<IList<Point>> GetPath(IList<IList<Point>> paths, int width, int height)
+    public IList<Point> GetPath(ReadOnlySpan<Point> path, int width, int height)
     {
         int rectWidth = width / 2;
         int rectHeight = height / 2;
@@ -76,38 +76,36 @@ public class CoordinateTransformationV2
         Rect rightTop = new(width / 2, 0, rectWidth, rectHeight);
         Rect leftBottom = new(0, height / 2, rectWidth, rectHeight);
         Rect rightBottom = new(width / 2, height / 2, rectWidth, rectHeight);
-        if (paths == null || paths.Count == 0) throw new ArgumentException($"{nameof(paths)}不能为空");
+        if (path == null || path.Length == 0) throw new ArgumentException($"{nameof(path)}不能为空");
 
-        foreach (var path in paths)
+        List<Point> result = new(path.Length);
+        for (var i = 0; i < path.Length; i++)
         {
-            for (var i = 0; i < path.Count; i++)
+            var point = path[i];
+            if (leftTop.Contains(point))
             {
-                var point = path[i];
-                if (leftTop.Contains(point))
-                {
-                    point = WarpAffine(point, a11, a12, a21, a22, aX, aY);
-                }
-                else if (rightTop.Contains(point))
-                {
-                    point = WarpAffine(point, b11, b12, b21, b22, bX, bY);
-                }
-                else if (leftBottom.Contains(point))
-                {
-                    point = WarpAffine(point, c11, c12, c21, c22, cX, cY);
-                }
-                else if (rightBottom.Contains(point))
-                {
-                    point = WarpAffine(point, d11, d12, d21, d22, dX, dY);
-                }
-                path[i] = point;
+                point = WarpAffine(point, a11, a12, a21, a22, aX, aY);
             }
+            else if (rightTop.Contains(point))
+            {
+                point = WarpAffine(point, b11, b12, b21, b22, bX, bY);
+            }
+            else if (leftBottom.Contains(point))
+            {
+                point = WarpAffine(point, c11, c12, c21, c22, cX, cY);
+            }
+            else if (rightBottom.Contains(point))
+            {
+                point = WarpAffine(point, d11, d12, d21, d22, dX, dY);
+            }
+            result[i] = point;
         }
-        return paths;
+        return result;
     }
+
     static Point WarpAffine(Point point, double m11, double m12, double m21, double m22, double tX, double tY)
     {
-        int x = point.X;
-        int y = point.Y;
+        (double x, double y) = (point.X, point.Y);
         point.X = (int)(m11 * x + m12 * y + tX);
         point.Y = (int)(m21 * x + m22 * y + tY);
         return point;

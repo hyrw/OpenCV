@@ -14,13 +14,16 @@ public class CoordinateTransformationV6
                 dst.Select(p => new double[] { p.X, p.Y }).ToList());
     }
 
-    public IList<Point> GetPath(IList<Point> path)
+    public IList<Point> GetPath(ReadOnlySpan<Point> path)
     {
-        if (path is null || !path.Any()) throw new ArgumentException("路径不能为空");
-
-        return path.Select(p => ApplyCorrection(new double[] { p.X, p.Y }, this.coeffX, this.coeffY))
-            .Select(p => new Point(p[0], p[1]))
-            .ToList();
+        if (path == null || path.Length == 0) throw new ArgumentException("路径不能为空");
+        List<Point> result = new(path.Length);
+        for (int i = 0; i < path.Length; i++)
+        {
+            var point = path[i];
+            result[i] = ApplyCorrection(point, this.coeffX, this.coeffY);
+        }
+        return result;
     }
 
     // 拟合校正模型
@@ -146,13 +149,11 @@ public class CoordinateTransformationV6
     }
 
     // 应用校正
-    static double[] ApplyCorrection(double[] point, double[] coeffX, double[] coeffY)
+    static Point ApplyCorrection(Point point, double[] coeffX, double[] coeffY)
     {
-        double x = point[0], y = point[1];
+        (double x, double y) = (point.X, point.Y);
         double[] terms = { 1, x, y, x * x, x * y, y * y };
-        return new[] {
-            terms.Zip(coeffX, (t, c) => t * c).Sum(),
-            terms.Zip(coeffY, (t, c) => t * c).Sum()
-        };
+        return new Point(terms.Zip(coeffX, (t, c) => t * c).Sum(),
+                terms.Zip(coeffY, (t, c) => t * c).Sum());
     }
 }

@@ -68,7 +68,7 @@ public class CoordinateTransformationV4
         d33 = matrixD.At<double>(2, 2);
     }
 
-    public IList<IList<Point>> GetPath(IList<IList<Point>> paths, int width, int height)
+    public IList<Point> GetPath(ReadOnlySpan<Point> path, int width, int height)
     {
         int rectWidth = width / 2;
         int rectHeight = height / 2;
@@ -76,39 +76,37 @@ public class CoordinateTransformationV4
         Rect rightTop = new(width / 2, 0, rectWidth, rectHeight);
         Rect leftBottom = new(0, height / 2, rectWidth, rectHeight);
         Rect rightBottom = new(width / 2, height / 2, rectWidth, rectHeight);
-        if (paths == null || paths.Count == 0) throw new ArgumentException($"{nameof(paths)}不能为空");
+        if (path == null || path.Length == 0) throw new ArgumentException($"{nameof(path)}不能为空");
 
-        foreach (var path in paths)
+        List<Point> result = new(path.Length);
+        for (int i = 0; i < path.Length; i++)
         {
-            for (var i = 0; i < path.Count; i++)
+            var p = path[i];
+            if (leftTop.Contains(p))
             {
-                var point = path[i];
-                if (leftTop.Contains(point))
-                {
-                    point = WarpPerspective(point, a11, a12, a13, a21, a22, a23, a31, a32, a33);
-                }
-                else if (rightTop.Contains(point))
-                {
-                    point = WarpPerspective(point, b11, b12, b13, b21, b22, b23, b31, b32, b33);
-                }
-                else if (leftBottom.Contains(point))
-                {
-                    point = WarpPerspective(point, c11, c12, c13, c21, c22, c23, c31, c32, c33);
-                }
-                else if (rightBottom.Contains(point))
-                {
-                    point = WarpPerspective(point, d11, d12, d13, d21, d22, d23, d31, d32, d33);
-                }
-                path[i] = point;
+                p = WarpPerspective(p, a11, a12, a13, a21, a22, a23, a31, a32, a33);
             }
+            else if (rightTop.Contains(p))
+            {
+                p = WarpPerspective(p, b11, b12, b13, b21, b22, b23, b31, b32, b33);
+            }
+            else if (leftBottom.Contains(p))
+            {
+                p = WarpPerspective(p, c11, c12, c13, c21, c22, c23, c31, c32, c33);
+            }
+            else if (rightBottom.Contains(p))
+            {
+                p = WarpPerspective(p, d11, d12, d13, d21, d22, d23, d31, d32, d33);
+            }
+            result[i] = p;
         }
-        return paths;
+
+        return result;
     }
 
     static Point WarpPerspective(Point point, double m11, double m12, double m13, double m21, double m22, double m23, double m31, double m32, double m33)
     {
-        int x = point.X;
-        int y = point.Y;
+        (double x, double y) = (point.X, point.Y);
         point.X = (int)((m11 * x + m12 * y + m13) / (m31 * x + m32 * y + m33));
         point.Y = (int)((m21 * x + m22 * y + m23) / (m31 * x + m32 * y + m33));
         return point;

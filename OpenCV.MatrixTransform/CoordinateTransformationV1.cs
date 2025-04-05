@@ -22,23 +22,21 @@ public class CoordinateTransformationV1
         tY = matrix.At<double>(1, 2);
     }
 
-    public IList<IList<Point>> GetPath(IList<IList<Point>> paths)
+    public IList<Point> GetPath(ReadOnlySpan<Point> path)
     {
-        if (paths == null || paths.Count == 0) throw new ArgumentException($"{nameof(paths)}不能为空");
+        if (path == null || path.Length == 0) throw new ArgumentException($"{nameof(path)}不能为空");
 
-        foreach (var path in paths)
+        List<Point> result = new(path.Length);
+        for (var i = 0; i < path.Length; i++)
         {
-            for (var i = 0; i < path.Count; i++)
-            {
-                path[i] = WarpAffine(path[i], m11, m12, m21, m22, tX, tY);
-            }
+            result[i] = WarpAffine(path[i], m11, m12, m21, m22, tX, tY);
         }
-        return paths;
+        return result;
     }
+
     static Point WarpAffine(Point point, double m11, double m12, double m21, double m22, double tX, double tY)
     {
-        int x = point.X;
-        int y = point.Y;
+        (double x, double y) = (point.X, point.Y);
         point.X = (int)(m11 * x + m12 * y + tX);
         point.Y = (int)(m21 * x + m22 * y + tY);
         return point;

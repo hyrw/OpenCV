@@ -22,18 +22,17 @@ public class CoordinateTransformationV3
         a33 = matrix.At<double>(2, 2);
     }
 
-    public IList<IList<Point>> GetPath(IList<IList<Point>> paths)
+    public IList<Point> GetPath(ReadOnlySpan<Point> path)
     {
-        if (paths == null || paths.Count == 0) throw new ArgumentException($"{nameof(paths)}不能为空");
+        if (path == null || path.Length == 0) throw new ArgumentException($"{nameof(path)}不能为空");
 
-        foreach (var path in paths)
+        List<Point> result = new(path.Length);
+
+        for (var i = 0; i < path.Length; i++)
         {
-            for (var i = 0; i < path.Count; i++)
-            {
-                path[i] = WarpPerspective(path[i], a11, a12, a13, a21, a22, a23, a31, a32, a33);
-            }
+            result[i] = WarpPerspective(path[i], a11, a12, a13, a21, a22, a23, a31, a32, a33);
         }
-        return paths;
+        return result;
     }
 
     static Point WarpPerspective(Point point, double m11, double m12, double m13, double m21, double m22, double m23, double m31, double m32, double m33)

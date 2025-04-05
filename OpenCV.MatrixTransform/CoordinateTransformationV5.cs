@@ -32,11 +32,11 @@ public class CoordinateTransformationV5
         this.yInterpolate = Interpolate.Common(y, dyValues);
     }
 
-    public IList<Point> GetPath(IList<Point> points)
+    public IList<Point> GetPath(ReadOnlySpan<Point> points)
     {
-        if (points == null || points.Count == 0) throw new ArgumentException($"{nameof(points)}不能为空");
+        if (points == null || points.Length == 0) throw new ArgumentException($"{nameof(points)}不能为空");
 
-        List<Point> result = new(points.Count);
+        List<Point> result = new(points.Length);
         foreach (var p in points)
         {
             double dx = xInterpolate.Interpolate(p.X);
@@ -47,7 +47,6 @@ public class CoordinateTransformationV5
                 Y = double.IsNaN(dy) ? p.Y : (int)(p.Y + dy),
             };
             result.Add(point);
-
         }
         return result;
     }
