@@ -36,12 +36,13 @@ public class ImageProcessorV2 : IImageProcessor
         int erodeIterations = this.param.ErodeIterations;
         int openIterations = this.param.OpenIterations;
         int closeIterations = this.param.CloseIterations;
-        using Mat binaryUV = gray.Threshold(this.param.Thresh, 255, ThresholdTypes.Binary);
+        using Mat binaryUV = gray.Threshold(this.param.Thresh, 255, ThresholdTypes.Otsu | ThresholdTypes.Binary);
+
 
         // 1. 腐蚀uv图像，知道比例和cam图一致
         GetErodeSize(out var erodeSize);
         using Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, erodeSize);
-        using Mat erodeUV = gray.Erode(kernel, iterations: erodeIterations);
+        using Mat erodeUV = binaryUV.Erode(kernel, iterations: erodeIterations);
 
         // 2. 模板匹配
         Cv2.BitwiseNot(erodeUV, erodeUV); // 必需
