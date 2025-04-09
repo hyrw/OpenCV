@@ -21,6 +21,7 @@ namespace ShortCircuitDetect.Lib.Service.Impl;
 
     MinArea = 500,
 }; */
+// TODO: 靠膨胀不能解决边缘的问题
 
 /// <summary>
 /// 0327
