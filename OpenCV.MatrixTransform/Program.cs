@@ -1,4 +1,5 @@
-﻿using OpenCvSharp;
+﻿using System.Runtime.InteropServices;
+using OpenCvSharp;
 
 using Mat before = Mat.Zeros(900, 800, MatType.CV_8UC3);
 using Mat after = Mat.Zeros(900, 800, MatType.CV_8UC3);
@@ -13,8 +14,8 @@ List<Point> real = [
    new (50,200), new (86.9,194), new (125,190), new (162,194), new (200,200),
 ];
 
-var v6 = new CoordinateTransformationV6(theory, real);
-var fixTheory = v6.GetPath(theory);
+var v5 = new CoordinateTransformationV6(theory, real);
+var fixTheory = v5.GetPath(CollectionsMarshal.AsSpan(theory));
 
 // 绘制原始点
 foreach (var p in theory)
