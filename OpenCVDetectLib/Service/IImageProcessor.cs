@@ -40,9 +40,15 @@ public interface IImageProcessor
 
         public int OpenWidth { get; set; }
         public int OpenHeight { get; set; }
+        public int OpenIterations { get; set; }
 
         public int CloseWidth { get; set; }
         public int CloseHeight { get; set; }
+        public int CloseIterations { get; set; }
+
+        public int ErodeWidth { get; set; }
+        public int ErodeHeight { get; set; }
+        public int ErodeIterations { get; set; }
 
         public TemplateMatchModes MatchMode;
         public double MatchLocScore { get; set; }
