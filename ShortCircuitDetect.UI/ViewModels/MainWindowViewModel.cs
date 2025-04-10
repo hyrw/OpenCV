@@ -40,6 +40,7 @@ partial class MainWindowViewModel : ObservableObject
     Mat? cam;
     Mat? color;
     Mat? uv;
+    private IImageProcessor? processor;
     private readonly OpenFolderDialog openFolderDialog;
 
     public MainWindowViewModel()
@@ -74,6 +75,29 @@ partial class MainWindowViewModel : ObservableObject
     async Task TestAllAsync()
     {
         if (Options is null) return;
+
+        Param param = new Param()
+        {
+            Thresh = 50,
+            ErodeWidth = 3,
+            ErodeHeight = 3,
+            // ErodeIterations = 12, // 0327
+            ErodeIterations = 3,  // 0327_2
+
+            MatchMode = TemplateMatchModes.CCoeff,
+            MatchLocScore = 0.9,
+
+            OpenWidth = 5,
+            OpenHeight = 5,
+            OpenIterations = 1,
+            CloseWidth = 5,
+            CloseHeight = 5,
+            CloseIterations = 6,
+
+            MinArea = 500,
+        };
+        this.processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
+        this.processor.SetupParam(param);
         await Task.Factory.StartNew(async () =>
         {
             while (imageNames.Count != 0)
@@ -81,30 +105,7 @@ partial class MainWindowViewModel : ObservableObject
                 this.imageName = imageNames.Dequeue();
                 await LoadMatAsync(this.imageName);
 
-                Param param = new Param()
-                {
-                    Thresh = 50,
-                    ErodeWidth = 3,
-                    ErodeHeight = 3,
-                    // ErodeIterations = 12, // 0327
-                    ErodeIterations = 3,  // 0327_2
-
-                    MatchMode = TemplateMatchModes.CCoeff,
-                    MatchLocScore = 0.9,
-
-                    OpenWidth = 5,
-                    OpenHeight = 5,
-                    OpenIterations = 1,
-                    CloseWidth = 5,
-                    CloseHeight = 5,
-                    CloseIterations = 6,
-
-                    MinArea = 500,
-                };
-
-                IImageProcessor processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
-                processor.SetupParam(param);
-                using var mask = processor.GetShortCircuit(this.cam!, this.uv!);
+                using var mask = this.processor.GetShortCircuit(this.cam!, this.uv!);
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
                     if (this.ResultImage is null)
@@ -149,9 +150,9 @@ partial class MainWindowViewModel : ObservableObject
             MinArea = 500,
         };
 
-        IImageProcessor processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
-        processor.SetupParam(param);
-        using var mask = processor.GetShortCircuit(this.cam!, this.uv!);
+        this.processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
+        this.processor.SetupParam(param);
+        using var mask = this.processor.GetShortCircuit(this.cam!, this.uv!);
         if (this.ResultImage is null)
         {
             this.ResultImage = mask.ToWriteableBitmap();
