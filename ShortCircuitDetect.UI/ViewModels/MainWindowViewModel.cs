@@ -124,55 +124,42 @@ partial class MainWindowViewModel : ObservableObject
     async Task TestNextAsync()
     {
         if (Options is null) return;
-        //if (imageNames.Count == 0) return;
-        //this.imageName = imageNames.Dequeue();
-        this.imageName = @"C:\Users\Coder\Workspace\玻璃基板图像\新建文件夹\X132207Y64236";
+        if (imageNames.Count == 0) return;
+        this.imageName = imageNames.Dequeue();
         await LoadMatAsync(this.imageName);
 
-        //Param param = new Param()
-        //{
-        //    Thresh = Options.Thresh,
-        //    MatchMode = Options.MatchMode,
-        //    MatchLocScore = Options.MatchLocScore,
-
-        //    OpenWidth = Options.OpenWidth,
-        //    OpenHeight = Options.OpenHeight,
-        //    CloseWidth = Options.CloseWidth,
-        //    CloseHeight = Options.CloseHeight,
-
-        //    BMin = Options.BMin,
-        //    BMax = Options.BMax,
-        //    GMin = Options.GMin,
-        //    GMax = Options.GMax,
-        //    RMin = Options.RMin,
-        //    RMax = Options.RMax,
-
-        //    MinArea = Options.MinArea,
-        //};
-
-        //IImageProcessor processor = new ImageProcessor();
-        //processor.SetupParam(param);
-        //var mask = processor.GetShortCircuit(this.cam!, this.uv!, this.color!);
-        //this.ResultImage = mask.ToWriteableBitmap();
-
-        var options = new DefectOptions()
+        Param param = new Param()
         {
-            BMin = Options.BMin,
-            BMax = Options.BMax,
-            GMin = Options.GMin,
-            GMax = Options.GMax,
-            RMin = Options.RMin,
-            RMax = Options.RMax,
+            Thresh = 50,
+            ErodeWidth = 3,
+            ErodeHeight = 3,
+            // ErodeIterations = 12, // 0327
+            ErodeIterations = 3,  // 0327_2
 
-            Thresh = Options.Thresh,
-            MinArea = Options.MinArea,
+            MatchMode = TemplateMatchModes.CCoeff,
+            MatchLocScore = 0.9,
+
+            OpenWidth = 5,
+            OpenHeight = 5,
+            OpenIterations = 1,
+            CloseWidth = 5,
+            CloseHeight = 5,
+            CloseIterations = 6,
+
+            MinArea = 500,
         };
-        using IDefectDetect defectDetect = new DefectDetectV4(this.cam!, this.color!, this.uv!, options);
-        //using IDefectDetect defectDetect = new DefectDetectV3(this.cam!, this.color!, this.uv!, options);
-        using var mask = defectDetect.GetDefectMask();
-        Cv2.FindContours(mask, out var contours, out _, RetrievalModes.List, ContourApproximationModes.ApproxNone);
-        Cv2.DrawContours(this.color!, contours, -1, Scalar.Red);
-        this.ResultImage = this.color!.ToWriteableBitmap();
+
+        IImageProcessor processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
+        processor.SetupParam(param);
+        using var mask = processor.GetShortCircuit(this.cam!, this.uv!);
+        if (this.ResultImage is null)
+        {
+            this.ResultImage = mask.ToWriteableBitmap();
+        }
+        else
+        {
+            WriteableBitmapConverter.ToWriteableBitmap(mask, this.ResultImage);
+        }
     }
 
     [RelayCommand]
