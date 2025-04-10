@@ -1,6 +1,5 @@
 ﻿using System.IO;
-using System.Windows.Media;
-using System.Windows.Threading;
+using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
@@ -23,7 +22,7 @@ partial class MainWindowViewModel : ObservableObject
     public partial string OutputDir { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial ImageSource? ResultImage { get; set; }
+    public partial WriteableBitmap? ResultImage { get; set; }
 
     [ObservableProperty]
     public partial DefectOptionsModel Options { get; set; }
@@ -75,61 +74,50 @@ partial class MainWindowViewModel : ObservableObject
     async Task TestAllAsync()
     {
         if (Options is null) return;
-        while (imageNames.Count != 0)
+        await Task.Factory.StartNew(async () =>
         {
-            this.imageName = imageNames.Dequeue();
-            await LoadMatAsync(this.imageName);
-
-            //Param param = new Param()
-            //{
-            //    Thresh = Options.Thresh,
-            //    MatchMode = Options.MatchMode,
-            //    MatchLocScore = Options.MatchLocScore,
-
-            //    OpenWidth = Options.OpenWidth,
-            //    OpenHeight = Options.OpenHeight,
-            //    CloseWidth = Options.CloseWidth,
-            //    CloseHeight = Options.CloseHeight,
-
-            //    BMin = Options.BMin,
-            //    BMax = Options.BMax,
-            //    GMin = Options.GMin,
-            //    GMax = Options.GMax,
-            //    RMin = Options.RMin,
-            //    RMax = Options.RMax,
-
-            //    MinArea = Options.MinArea,
-            //};
-
-            //IImageProcessor processor = new ImageProcessorCollect(new ImageProcessor(), OutputDir, this.imageName);
-            //processor.SetupParam(param);
-            //Dispatcher.CurrentDispatcher.Invoke(() =>
-            //{
-            //    using var mask = processor.GetShortCircuit(this.cam!, this.uv!); // thresh=140
-            //    //var mask = processor.GetShortCircuit(this.cam!, this.uv!, this.color!);
-            //    this.ResultImage = mask.ToWriteableBitmap();
-            //});
-
-            var options = new DefectOptions()
+            while (imageNames.Count != 0)
             {
-                BMin = Options.BMin,
-                BMax = Options.BMax,
-                GMin = Options.GMin,
-                GMax = Options.GMax,
-                RMin = Options.RMin,
-                RMax = Options.RMax,
+                this.imageName = imageNames.Dequeue();
+                await LoadMatAsync(this.imageName);
 
-                Thresh = Options.Thresh,
-                MinArea = Options.MinArea,
-            };
-            using IDefectDetect defectDetect = new DefectDetectV4(this.cam!, this.color!, this.uv!, options);
-            using var mask = defectDetect.GetDefectMask();
-            Cv2.FindContours(mask, out var contours, out _, RetrievalModes.List, ContourApproximationModes.ApproxNone);
-            Cv2.DrawContours(this.color!, contours, -1, Scalar.Red);
-            this.ResultImage = this.color!.ToWriteableBitmap();
+                Param param = new Param()
+                {
+                    Thresh = 50,
+                    ErodeWidth = 3,
+                    ErodeHeight = 3,
+                    // ErodeIterations = 12, // 0327
+                    ErodeIterations = 3,  // 0327_2
 
-        }
-        return;
+                    MatchMode = TemplateMatchModes.CCoeff,
+                    MatchLocScore = 0.9,
+
+                    OpenWidth = 5,
+                    OpenHeight = 5,
+                    OpenIterations = 1,
+                    CloseWidth = 5,
+                    CloseHeight = 5,
+                    CloseIterations = 6,
+
+                    MinArea = 500,
+                };
+
+                IImageProcessor processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
+                processor.SetupParam(param);
+                using var mask = processor.GetShortCircuit(this.cam!, this.uv!);
+                await App.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    if (this.ResultImage is null)
+                    {
+                        this.ResultImage = mask.ToWriteableBitmap();
+                    }
+                    else
+                    {
+                        WriteableBitmapConverter.ToWriteableBitmap(mask, this.ResultImage);
+                    }
+                });
+            }
+        });
     }
 
     [RelayCommand]
