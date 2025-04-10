@@ -20,50 +20,54 @@
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
+        <ScrollViewer Grid.Column="0" Padding="5">
             <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="玻璃基板图像路径" />
-                    <Button
-                        Width="100"
-                        Command="{Binding SelectTestImageFolderCommand}"
-                        Content="选择文件夹" />
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="玻璃基板图像路径" />
+                        <Button
+                            Width="100"
+                            Command="{Binding SelectTestImageFolderCommand}"
+                            Content="选择文件夹" />
+                    </StackPanel>
+                    <TextBox
+                        d:Text=""
+                        IsReadOnly="True"
+                        Text="{Binding Dir}" />
                 </StackPanel>
-                <TextBox
-                    d:Text=""
-                    IsReadOnly="True"
-                    Text="{Binding Dir}" />
-            </StackPanel>
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Label Content="输出路径" DockPanel.Dock="Left" />
-                    <Button
-                        HorizontalAlignment="Right"
-                        Command="{Binding SelectOutputImageFolderCommand}"
-                        Content="选择文件夹"
-                        DockPanel.Dock="Right" />
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Label Content="输出路径" DockPanel.Dock="Left" />
+                        <Button
+                            HorizontalAlignment="Right"
+                            Command="{Binding SelectOutputImageFolderCommand}"
+                            Content="选择文件夹"
+                            DockPanel.Dock="Right" />
+                    </StackPanel>
+                    <TextBox
+                        d:Text=""
+                        IsReadOnly="True"
+                        Text="{Binding OutputDir}" />
                 </StackPanel>
-                <TextBox
-                    d:Text=""
-                    IsReadOnly="True"
-                    Text="{Binding OutputDir}" />
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="选择实现" />
+                    <ComboBox
+                        ItemsSource="{Binding DetectImpls}"
+                        SelectedItem="0"
+                        SelectedValue="{Binding SelectedImpl}" />
+                </StackPanel>
+                <StackPanel>
+                    <views:DefectOptionsView />
+                </StackPanel>
+                <StackPanel>
+                    <Button Command="{Binding TestAllCommand}" Content="测试所有图像" />
+                    <Button Command="{Binding TestNextCommand}" Content="测试下一项" />
+                    <Button Command="{Binding ReloadImageNameCommand}" Content="重新加载图片" />
+                </StackPanel>
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <Label Content="选择实现" />
-                <ComboBox
-                    ItemsSource="{Binding DetectImpls}"
-                    SelectedItem="0"
-                    SelectedValue="{Binding SelectedImpl}" />
-            </StackPanel>
-            <StackPanel>
-                <views:DefectOptionsView />
-            </StackPanel>
-            <StackPanel>
-                <Button Command="{Binding TestAllCommand}" Content="测试所有图像" />
-                <Button Command="{Binding TestNextCommand}" Content="测试下一项" />
-                <Button Command="{Binding ReloadImageNameCommand}" Content="重新加载图片" />
-            </StackPanel>
-        </StackPanel>
+
+
+        </ScrollViewer>
         <Image Grid.Column="1" Source="{Binding ResultImage}" />
     </Grid>
 </Window>
