@@ -7,7 +7,8 @@ namespace ShortCircuitDetect.Lib.Service.Impl;
     Thresh = 50,
     ErodeWidth = 3,
     ErodeHeight = 3,
-    ErodeIterations = 12,
+    ErodeIterations = 12, // 0327
+    ErodeIterations = 6,  // 0327_2
 
     MatchMode = TemplateMatchModes.CCoeff,
     MatchLocScore = 0.9,
@@ -24,7 +25,8 @@ namespace ShortCircuitDetect.Lib.Service.Impl;
 // TODO: 靠膨胀不能解决边缘的问题
 
 /// <summary>
-/// 0327
+/// 0327, 0327_2
+/// cam黑色是铜，uv图黑色是铜
 /// </summary>
 public class ImageProcessorV2 : IImageProcessor
 {
@@ -40,7 +42,7 @@ public class ImageProcessorV2 : IImageProcessor
         using Mat binaryUV = gray.Threshold(this.param.Thresh, 255, ThresholdTypes.Otsu | ThresholdTypes.Binary);
 
 
-        // 1. 腐蚀uv图像，知道比例和cam图一致
+        // 1. 腐蚀uv图像，直到比例和cam图一致
         GetErodeSize(out var erodeSize);
         using Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, erodeSize);
         using Mat erodeUV = binaryUV.Erode(kernel, iterations: erodeIterations);
@@ -77,10 +79,7 @@ public class ImageProcessorV2 : IImageProcessor
 
     public Mat GetShortCircuit(Mat norm, Mat gray, Mat color) => throw new NotImplementedException();
 
-    public void SetupParam(IImageProcessor.Param param)
-    {
-        this.param = param;
-    }
+    public void SetupParam(IImageProcessor.Param param) => this.param = param;
 
     void GetOpenAndCloseSize(out Size openSize, out Size closeSize)
     {
