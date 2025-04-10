@@ -217,12 +217,12 @@ partial class MainWindowViewModel : ObservableObject
 
     Task LoadMatAsync(string imageName)
     {
-        string camFile = Path.Combine(Dir, $"{imageName}_Cam.png");
-        string colorFile = Path.Combine(Dir, $"{imageName}_Color.png");
+        string camFile = Path.Combine(Dir, $"{imageName}_CAM.png");
+        // string colorFile = Path.Combine(Dir, $"{imageName}_Color.png");
         string uvFile = Path.Combine(Dir, $"{imageName}_UV.png");
 
         ThrowIfFileNotFound(camFile);
-        ThrowIfFileNotFound(colorFile);
+        // ThrowIfFileNotFound(colorFile);
         ThrowIfFileNotFound(uvFile);
 
         this.cam?.Dispose();
@@ -230,7 +230,7 @@ partial class MainWindowViewModel : ObservableObject
         this.uv?.Dispose();
 
         this.cam = Cv2.ImRead(camFile, ImreadModes.Grayscale);
-        this.color = Cv2.ImRead(colorFile);
+        // this.color = Cv2.ImRead(colorFile);
         this.uv = Cv2.ImRead(uvFile, ImreadModes.Grayscale);
 
         return Task.CompletedTask;
