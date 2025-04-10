@@ -106,15 +106,16 @@ partial class MainWindowViewModel : ObservableObject
                 await LoadMatAsync(this.imageName);
 
                 using var mask = this.processor.GetShortCircuit(this.cam!, this.uv!);
+                using Mat result = GetDrawResult(this.uv!, mask);
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
                     if (this.ResultImage is null)
                     {
-                        this.ResultImage = mask.ToWriteableBitmap();
+                        this.ResultImage = result.ToWriteableBitmap();
                     }
                     else
                     {
-                        WriteableBitmapConverter.ToWriteableBitmap(mask, this.ResultImage);
+                        WriteableBitmapConverter.ToWriteableBitmap(result, this.ResultImage);
                     }
                 });
             }
@@ -150,16 +151,17 @@ partial class MainWindowViewModel : ObservableObject
             MinArea = 500,
         };
 
-        this.processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
+        this.processor = new ImageProcessorV2();
         this.processor.SetupParam(param);
         using var mask = this.processor.GetShortCircuit(this.cam!, this.uv!);
+        using Mat result = GetDrawResult(this.uv!, mask);
         if (this.ResultImage is null)
         {
-            this.ResultImage = mask.ToWriteableBitmap();
+            this.ResultImage = result.ToWriteableBitmap();
         }
         else
         {
-            WriteableBitmapConverter.ToWriteableBitmap(mask, this.ResultImage);
+            WriteableBitmapConverter.ToWriteableBitmap(result, this.ResultImage);
         }
     }
 
@@ -227,6 +229,14 @@ partial class MainWindowViewModel : ObservableObject
     static void ThrowIfFileNotFound(string file)
     {
         if (!File.Exists(file)) throw new FileNotFoundException(file);
+    }
+
+    static Mat GetDrawResult(Mat gray, Mat mask)
+    {
+        Mat result = gray.CvtColor(ColorConversionCodes.GRAY2BGR);
+        Cv2.FindContours(mask, out var contours, out _, RetrievalModes.List, ContourApproximationModes.ApproxNone);
+        Cv2.DrawContours(result, contours, -1, Scalar.Red);
+        return result;
     }
 
 }
