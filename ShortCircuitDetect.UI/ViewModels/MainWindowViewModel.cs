@@ -117,7 +117,7 @@ partial class MainWindowViewModel : ObservableObject
                     }
                 });
             }
-        });
+        }, TaskCreationOptions.LongRunning);
     }
 
     [RelayCommand]
