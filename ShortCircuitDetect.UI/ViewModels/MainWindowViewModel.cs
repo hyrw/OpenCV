@@ -40,7 +40,6 @@ partial class MainWindowViewModel : ObservableObject
     Mat? cam;
     Mat? color;
     Mat? uv;
-    private IImageProcessor? processor;
     private readonly OpenFolderDialog openFolderDialog;
 
     public MainWindowViewModel()
@@ -96,16 +95,16 @@ partial class MainWindowViewModel : ObservableObject
 
             MinArea = 500,
         };
-        this.processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
-        this.processor.SetupParam(param);
         await Task.Factory.StartNew(async () =>
         {
             while (imageNames.Count != 0)
             {
                 this.imageName = imageNames.Dequeue();
                 await LoadMatAsync(this.imageName);
+                var processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
+                processor.SetupParam(param);
 
-                using var mask = this.processor.GetShortCircuit(this.cam!, this.uv!);
+                using var mask = processor.GetShortCircuit(this.cam!, this.uv!);
                 using Mat result = GetDrawResult(this.uv!, mask);
                 await App.Current.Dispatcher.InvokeAsync(() =>
                 {
@@ -151,9 +150,9 @@ partial class MainWindowViewModel : ObservableObject
             MinArea = 500,
         };
 
-        this.processor = new ImageProcessorV2();
-        this.processor.SetupParam(param);
-        using var mask = this.processor.GetShortCircuit(this.cam!, this.uv!);
+        var processor = new ImageProcessorV2();
+        processor.SetupParam(param);
+        using var mask = processor.GetShortCircuit(this.cam!, this.uv!);
         using Mat result = GetDrawResult(this.uv!, mask);
         if (this.ResultImage is null)
         {
