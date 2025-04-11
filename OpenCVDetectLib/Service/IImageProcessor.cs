@@ -50,6 +50,10 @@ public interface IImageProcessor
         public int ErodeHeight { get; set; }
         public int ErodeIterations { get; set; }
 
+        public int DilateWidth { get; set; }
+        public int DilateHeight { get; set; }
+        public int DilateIterations { get; set; }
+
         public TemplateMatchModes MatchMode;
         public double MatchLocScore { get; set; }
     }
