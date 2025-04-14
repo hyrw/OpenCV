@@ -14,8 +14,8 @@ List<Point> real = [
    new (50,200), new (86.9,194), new (125,190), new (162,194), new (200,200),
 ];
 
-var v5 = new CoordinateTransformationV6(theory, real);
-var fixTheory = v5.GetPath(CollectionsMarshal.AsSpan(theory));
+var v7 = new CoordinateTransformationV7(theory, real, 25);
+var fixTheory = v7.GetPath(CollectionsMarshal.AsSpan(theory));
 
 // 绘制原始点
 foreach (var p in theory)
