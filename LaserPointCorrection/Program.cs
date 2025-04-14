@@ -86,7 +86,7 @@ public class CoordinateCorrection
     {
         //IIntersectionDetector intersectionDetector = new SkeletonizeCrossPoint();
         //return intersectionDetector.FindCrossPoints(img);
-        // 模拟的假数据
+        // 模拟的假数据 TODO: 删除
         Point[] samplePoint = [
             new(52, 48), new(88, 48), new (125, 48), new (161, 48), new(198, 48),
             new(52, 85), new(88, 85), new (125, 85), new (161, 85), new(198, 85),
