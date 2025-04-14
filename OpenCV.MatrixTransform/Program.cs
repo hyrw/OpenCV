@@ -5,7 +5,7 @@ using Mat before = Mat.Zeros(900, 800, MatType.CV_8UC3);
 using Mat after = Mat.Zeros(900, 800, MatType.CV_8UC3);
 
 
-List<Point> theory = GridGenerator.GenerateGrid((50, 200), (50, 200), 5);
+List<Point> theory = GridGenerator.GenerateGrid((50, 200), (50, 200), 25);
 List<Point> real = [
    new (50,50), new (90,58), new (125,60), new (158,58), new (200,50),
    new (56,89), new (90,91.5), new (123.6,94.5), new (160.7,92.8), new (193,89),
@@ -50,8 +50,9 @@ public static class GridGenerator
 {
     public static List<Point> GenerateGrid((int Min, int Max) xRange, (int Min, int Max) yRange, int numPoints)
     {
-        var xPoints = Linspace(xRange.Min, xRange.Max, 5);
-        var yPoints = Linspace(yRange.Min, yRange.Max, 5);
+        int n = (int)Math.Sqrt(numPoints);
+        var xPoints = Linspace(xRange.Min, xRange.Max, n);
+        var yPoints = Linspace(yRange.Min, yRange.Max, n);
 
         var grid = new List<Point>();
         foreach (var y in yPoints)
