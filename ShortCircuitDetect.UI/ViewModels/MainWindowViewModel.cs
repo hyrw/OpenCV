@@ -5,11 +5,9 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using OpenCvSharp;
 using OpenCvSharp.WpfExtensions;
-using ShortCircuitDetect.Lib.Service;
 using ShortCircuitDetect.Lib.Service.Impl;
 using ShortCircuitDetect.UI.Models;
 using ShortCircuitDetect.UI.Services.Impl;
-using static IImageProcessor;
 
 namespace ShortCircuitDetect.UI.ViewModels;
 
