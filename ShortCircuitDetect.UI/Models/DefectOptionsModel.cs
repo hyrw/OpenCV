@@ -98,8 +98,10 @@ public static class DefectOptionsModelEx
 
             OpenWidth = model.OpenWidth,
             OpenHeight = model.OpenHeight,
+            OpenIterations = model.OpenIterations,
             CloseWidth = model.CloseWidth,
             CloseHeight = model.CloseHeight,
+            CloseIterations = model.CloseIterations,
 
             MatchLocScore = model.MatchLocScore,
             MatchMode = model.MatchMode,
@@ -137,8 +139,10 @@ public static class DefectOptionsModelEx
 
             OpenWidth = model.OpenWidth,
             OpenHeight = model.OpenHeight,
+            OpenIterations = model.OpenIterations,
             CloseWidth = model.CloseWidth,
             CloseHeight = model.CloseHeight,
+            CloseIterations = model.CloseIterations,
 
             MatchLocScore = model.MatchLocScore,
             MatchMode = model.MatchMode,
@@ -176,8 +180,10 @@ public static class DefectOptionsModelEx
 
             OpenWidth = model.OpenWidth,
             OpenHeight = model.OpenHeight,
+            OpenIterations = model.OpenIterations,
             CloseWidth = model.CloseWidth,
             CloseHeight = model.CloseHeight,
+            CloseIterations = model.CloseIterations,
 
             MatchLocScore = model.MatchLocScore,
             MatchMode = model.MatchMode,
