@@ -95,7 +95,7 @@ public class ImageProcessorV3 : IImageProcessor
     {
         var defaultSize = new Size(3, 3);
         openSize = new Size(this.param.OpenWidth, this.param.OpenHeight);
-        closeSize = new Size(this.param.CloseWidth, this.param.OpenHeight);
+        closeSize = new Size(this.param.CloseWidth, this.param.CloseHeight);
 
         if (openSize.Width == 0 || openSize.Height == 0)
         {
