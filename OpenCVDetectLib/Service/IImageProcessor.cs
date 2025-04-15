@@ -28,6 +28,13 @@ public interface IImageProcessor
     /// </summary>
     public struct Param
     {
+        public int HMin { get; set; }
+        public int HMax { get; set; }
+        public int SMin { get; set; }
+        public int SMax { get; set; }
+        public int VMin { get; set; }
+        public int VMax { get; set; }
+
         public int RMin { get; set; }
         public int RMax { get; set; }
         public int GMin { get; set; }
