@@ -50,23 +50,24 @@ partial class MainWindowViewModel : ObservableObject
         };
         Options = new()
         {
-            Thresh = 200,
+            Thresh = 30,
+            ErodeWidth = 3,
+            ErodeHeight = 3,
+            ErodeIterations = 12,
             MatchMode = TemplateMatchModes.CCoeff,
-            MatchLocScore = 0.8,
+            MatchLocScore = 0.9,
 
-            OpenWidth = 7,
-            OpenHeight = 7,
-            CloseWidth = 3,
-            CloseHeight = 3,
+            OpenWidth = 3,
+            OpenHeight = 3,
+            OpenIterations = 1,
+            CloseWidth = 7,
+            CloseHeight = 7,
+            CloseIterations = 1,
+            DilateWidth = 5,
+            DilateHeight = 5,
+            DilateIterations = 1,
 
-            BMin = 31,
-            BMax = 180,
-            GMin = 0,
-            GMax = 255,
-            RMin = 0,
-            RMax = 255,
-
-            MinArea = 500,
+            MinArea = 200,
         };
     }
 
@@ -75,34 +76,14 @@ partial class MainWindowViewModel : ObservableObject
     {
         if (Options is null) return;
 
-        Param param = new Param()
-        {
-            Thresh = 50,
-            ErodeWidth = 3,
-            ErodeHeight = 3,
-            // ErodeIterations = 12, // 0327
-            ErodeIterations = 3,  // 0327_2
-
-            MatchMode = TemplateMatchModes.CCoeff,
-            MatchLocScore = 0.9,
-
-            OpenWidth = 5,
-            OpenHeight = 5,
-            OpenIterations = 1,
-            CloseWidth = 5,
-            CloseHeight = 5,
-            CloseIterations = 6,
-
-            MinArea = 500,
-        };
         await Task.Factory.StartNew(async () =>
         {
             while (imageNames.Count != 0)
             {
                 this.imageName = imageNames.Dequeue();
                 await LoadMatAsync(this.imageName);
-                var processor = new ImageProcessorCollect(new ImageProcessorV2(), OutputDir, this.imageName);
-                processor.SetupParam(param);
+                var processor = new ImageProcessorCollect(new ImageProcessorV3(), OutputDir, this.imageName);
+                processor.SetupParam(Options.ToParams());
 
                 using var mask = processor.GetShortCircuit(this.cam!, this.uv!);
                 using Mat result = GetDrawResult(this.uv!, mask);
@@ -129,29 +110,8 @@ partial class MainWindowViewModel : ObservableObject
         this.imageName = imageNames.Dequeue();
         await LoadMatAsync(this.imageName);
 
-        Param param = new Param()
-        {
-            Thresh = 50,
-            ErodeWidth = 3,
-            ErodeHeight = 3,
-            // ErodeIterations = 12, // 0327
-            ErodeIterations = 3,  // 0327_2
-
-            MatchMode = TemplateMatchModes.CCoeff,
-            MatchLocScore = 0.9,
-
-            OpenWidth = 5,
-            OpenHeight = 5,
-            OpenIterations = 1,
-            CloseWidth = 5,
-            CloseHeight = 5,
-            CloseIterations = 6,
-
-            MinArea = 500,
-        };
-
-        var processor = new ImageProcessorV2();
-        processor.SetupParam(param);
+        var processor = new ImageProcessorV3();
+        processor.SetupParam(Options.ToParams());
         using var mask = processor.GetShortCircuit(this.cam!, this.uv!);
         using Mat result = GetDrawResult(this.uv!, mask);
         if (this.ResultImage is null)
