@@ -39,7 +39,7 @@ public class ImageProcessorV3 : IImageProcessor
 
 
         // 1. 腐蚀uv图像，直到比例和cam图一致
-        GetErodeSize(out var erodeSize);
+        var erodeSize = GetSizeOrDefault(this.param.ErodeWidth, this.param.ErodeHeight, new Size(3, 3));
         using Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, erodeSize);
         using Mat erodeUV = binaryUV.Erode(kernel, iterations: erodeIterations);
 
@@ -62,7 +62,8 @@ public class ImageProcessorV3 : IImageProcessor
         Cv2.BitwiseAnd(camROI, binaryUV, result, binaryUV);
 
         // 6. 清除小的连通域
-        GetOpenAndCloseSize(out var openSize, out var closeSize);
+        var openSize = GetSizeOrDefault(this.param.OpenWidth, this.param.OpenHeight, new Size(3, 3));
+        var closeSize = GetSizeOrDefault(this.param.CloseWidth, this.param.CloseHeight, new Size(3, 3));
         using Mat openKernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, openSize);
         using Mat closeKernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, closeSize);
         Cv2.MorphologyEx(result, result, MorphTypes.Open, openKernel, iterations: openIterations);
@@ -74,7 +75,7 @@ public class ImageProcessorV3 : IImageProcessor
 
         // 以上都是处理基板无铜区域
 
-        GetDilateSize(out var dilateSize);
+        var dilateSize = GetSizeOrDefault(this.param.DilateWidth, this.param.DilateHeight, new Size(3, 3));
         using Mat dilateKernel = Cv2.GetStructuringElement(MorphShapes.Ellipse, dilateSize);
         Cv2.BitwiseNot(result, result, camROI);
         Cv2.MorphologyEx(result, result, MorphTypes.Open, openKernel, iterations: openIterations);
@@ -91,42 +92,13 @@ public class ImageProcessorV3 : IImageProcessor
 
     public void SetupParam(IImageProcessor.Param param) => this.param = param;
 
-    void GetOpenAndCloseSize(out Size openSize, out Size closeSize)
+    Size GetSizeOrDefault(int width, int height, Size defaultValue)
     {
-        var defaultSize = new Size(3, 3);
-        openSize = new Size(this.param.OpenWidth, this.param.OpenHeight);
-        closeSize = new Size(this.param.CloseWidth, this.param.CloseHeight);
-
-        if (openSize.Width == 0 || openSize.Height == 0)
+        if (width > 0 || height > 0)
         {
-            openSize = defaultSize;
+            return new Size(width, height);
         }
-        if (closeSize.Width == 0 || closeSize.Height == 0)
-        {
-            closeSize = defaultSize;
-        }
-    }
-
-    void GetErodeSize(out Size size)
-    {
-        var defaultSize = new Size(3, 3);
-        size = new Size(this.param.ErodeWidth, this.param.ErodeHeight);
-
-        if (size.Width == 0 || size.Height == 0)
-        {
-            size = defaultSize;
-        }
-    }
-
-    void GetDilateSize(out Size size)
-    {
-        var defaultSize = new Size(3, 3);
-        size = new Size(this.param.DilateWidth, this.param.DilateHeight);
-
-        if (size.Width == 0 || size.Height == 0)
-        {
-            size = defaultSize;
-        }
+        return defaultValue;
     }
 
     static Point[][] GetContours(Mat mat)
