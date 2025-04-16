@@ -49,7 +49,8 @@ public class ImageProcessor : IImageProcessor
         using Mat result = Mat.Zeros(color.Size(), MatType.CV_8UC1);
         Cv2.CopyTo(r, result, mask);
 
-        GetOpenAndCloseSize(out var openSize, out var closeSize);
+        var openSize = GetSizeOrDefault(this.param.OpenWidth, this.param.OpenHeight, new Size(3, 3));
+        var closeSize = GetSizeOrDefault(this.param.CloseWidth, this.param.CloseHeight, new Size(3, 3));
         var open = Cv2.GetStructuringElement(MorphShapes.Ellipse, openSize);
         var close = Cv2.GetStructuringElement(MorphShapes.Ellipse, closeSize);
 
@@ -71,20 +72,13 @@ public class ImageProcessor : IImageProcessor
         this.param = param;
     }
 
-    private void GetOpenAndCloseSize(out Size openSize, out Size closeSize)
+    Size GetSizeOrDefault(int width, int height, Size defaultValue)
     {
-        var defaultSize = new Size(3, 3);
-        openSize = new Size(this.param.OpenWidth, this.param.OpenHeight);
-        closeSize = new Size(this.param.CloseWidth, this.param.OpenHeight);
-
-        if (openSize.Width == 0 || openSize.Height == 0)
+        if (width > 0 && height > 0)
         {
-            openSize = defaultSize;
+            return new Size(width, height);
         }
-        if (closeSize.Width == 0 || closeSize.Height == 0)
-        {
-            closeSize = defaultSize;
-        }
+        return defaultValue;
     }
 
     private static Point[][] GetContours(Mat mat)
