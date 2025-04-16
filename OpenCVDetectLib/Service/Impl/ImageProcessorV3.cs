@@ -94,7 +94,7 @@ public class ImageProcessorV3 : IImageProcessor
 
     Size GetSizeOrDefault(int width, int height, Size defaultValue)
     {
-        if (width > 0 || height > 0)
+        if (width > 0 && height > 0)
         {
             return new Size(width, height);
         }
