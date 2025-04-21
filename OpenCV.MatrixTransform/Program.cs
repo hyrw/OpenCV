@@ -42,14 +42,14 @@ foreach (var p in fixTheory)
 
 Cv2.ImShow("before", before);
 Cv2.ImShow("after", after);
-var beforePlot = new ScottPlot.Plot();
-var afterPlot = new ScottPlot.Plot();
-beforePlot.Add.Scatter(theory.Select(p => p.X).ToArray(), theory.Select(p => p.Y).ToArray(), Colors.Green);
-beforePlot.Add.Scatter(real.Select(p => p.X).ToArray(), real.Select(p => p.Y).ToArray(), Colors.Red);
-afterPlot.Add.Scatter(theory.Select(p => p.X).ToArray(), theory.Select(p => p.Y).ToArray(), Colors.Green);
-afterPlot.Add.Scatter(fixTheory.Select(p => p.X).ToArray(), fixTheory.Select(p => p.Y).ToArray(), Colors.Red);
-beforePlot.SavePng(@"c:/Users/Coder/Desktop/beforePlot.png", 500, 500);
-afterPlot.SavePng(@"c:/Users/Coder/Desktop/afterPlot.png", 500, 500);
+// var beforePlot = new ScottPlot.Plot();
+// var afterPlot = new ScottPlot.Plot();
+// beforePlot.Add.Scatter(theory.Select(p => p.X).ToArray(), theory.Select(p => p.Y).ToArray(), Colors.Green);
+// beforePlot.Add.Scatter(real.Select(p => p.X).ToArray(), real.Select(p => p.Y).ToArray(), Colors.Red);
+// afterPlot.Add.Scatter(theory.Select(p => p.X).ToArray(), theory.Select(p => p.Y).ToArray(), Colors.Green);
+// afterPlot.Add.Scatter(fixTheory.Select(p => p.X).ToArray(), fixTheory.Select(p => p.Y).ToArray(), Colors.Red);
+// beforePlot.SavePng(@"c:/Users/Coder/Desktop/beforePlot.png", 500, 500);
+// afterPlot.SavePng(@"c:/Users/Coder/Desktop/afterPlot.png", 500, 500);
 Cv2.WaitKey();
 
 
