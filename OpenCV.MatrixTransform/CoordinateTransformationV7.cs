@@ -36,12 +36,12 @@ public class CoordinateTransformationV7
         for (int i = 0; i < path.Length; i++)
         {
             var point = path[i];
-            var x = xInterpolator.Interpolate(point.X, point.Y);
-            var y = yInterpolator.Interpolate(point.X, point.Y);
+            var x = xInterpolator.Interpolate(point.Y, point.X);
+            var y = yInterpolator.Interpolate(point.Y, point.X);
             var diffX = point.X - x;
             var diffY = point.Y - y;
 
-            result.Add(new Point(x + diffX, y + diffY));
+            result.Add(new Point(point.X + diffX, point.Y + diffY));
         }
         return result;
     }
@@ -55,7 +55,7 @@ public class CoordinateTransformationV7
 
         for (int i = 0; i < n; i++)
         {
-            List<Point> row = row = dst.Skip(i * n).Take(n).ToList();
+            List<Point> row = dst.Skip(i * n).Take(n).ToList();
             for (int j = 0; j < n; j++)
             {
                 z_x[i, j] = row[j].X;

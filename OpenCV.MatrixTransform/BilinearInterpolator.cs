@@ -23,7 +23,13 @@ public class BilinearInterpolator
         _z = z;
     }
 
-    public double Interpolate(double x, double y)
+    /// <summary>
+    /// NOTE: 参数需要反着传
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <returns></returns>
+    public double Interpolate(double x, double y) 
     {
         // 查找 x 方向的区间
         int i = Array.BinarySearch(_x, x);
