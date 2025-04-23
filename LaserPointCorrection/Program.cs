@@ -103,7 +103,7 @@ public class CoordinateCorrection
     /// </summary>
     public void Correction()
     {
-        IList<Point> srcPoint = LaserMarking(this.laserXRange, this.laserXRange, this.numPoints);
+        IList<Point> srcPoint = LaserMarking(this.laserXRange, this.laserYRange, this.numPoints);
         using Mat gray = AcquireCameraImage();
         IList<Point> crossPoints = FindIntersectionPoints(gray);
 
