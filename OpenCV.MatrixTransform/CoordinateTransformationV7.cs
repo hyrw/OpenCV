@@ -36,8 +36,8 @@ public class CoordinateTransformationV7
         for (int i = 0; i < path.Length; i++)
         {
             var point = path[i];
-            var x = xInterpolator.Interpolate(point.Y, point.X);
-            var y = yInterpolator.Interpolate(point.Y, point.X);
+            var x = xInterpolator.Interpolate(point.X, point.Y);
+            var y = yInterpolator.Interpolate(point.X, point.Y);
             var diffX = point.X - x;
             var diffY = point.Y - y;
 

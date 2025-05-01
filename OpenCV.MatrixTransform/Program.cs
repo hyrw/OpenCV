@@ -1,6 +1,6 @@
-﻿using OpenCvSharp;
+﻿using System.Runtime.InteropServices;
+using OpenCvSharp;
 using ScottPlot;
-using System.Runtime.InteropServices;
 
 using Mat before = Mat.Zeros(900, 800, MatType.CV_8UC3);
 using Mat after = Mat.Zeros(900, 800, MatType.CV_8UC3);
@@ -42,8 +42,8 @@ foreach (var p in fixTheory)
 
 Cv2.ImShow("before", before);
 Cv2.ImShow("after", after);
-// var beforePlot = new ScottPlot.Plot();
-// var afterPlot = new ScottPlot.Plot();
+// var beforePlot = new Plot();
+// var afterPlot = new Plot();
 // beforePlot.Add.Scatter(theory.Select(p => p.X).ToArray(), theory.Select(p => p.Y).ToArray(), Colors.Green);
 // beforePlot.Add.Scatter(real.Select(p => p.X).ToArray(), real.Select(p => p.Y).ToArray(), Colors.Red);
 // afterPlot.Add.Scatter(theory.Select(p => p.X).ToArray(), theory.Select(p => p.Y).ToArray(), Colors.Green);

@@ -1,8 +1,7 @@
 ﻿namespace OpenCV.MatrixTransform;
 
-
 /// <summary>
-/// 分段线性插值
+/// 双线性插值
 /// </summary>
 public class BilinearInterpolator
 {
@@ -24,12 +23,11 @@ public class BilinearInterpolator
     }
 
     /// <summary>
-    /// NOTE: 参数需要反着传
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <returns></returns>
-    public double Interpolate(double x, double y) 
+    public double Interpolate(double x, double y)
     {
         // 查找 x 方向的区间
         int i = Array.BinarySearch(_x, x);
@@ -44,8 +42,8 @@ public class BilinearInterpolator
         // 提取四个角点的值和坐标
         double x0 = _x[i], x1 = _x[i + 1];
         double y0 = _y[j], y1 = _y[j + 1];
-        double z00 = _z[i, j], z01 = _z[i, j + 1];
-        double z10 = _z[i + 1, j], z11 = _z[i + 1, j + 1];
+        double z00 = _z[j, i], z01 = _z[j + 1, i];
+        double z10 = _z[j, i + 1], z11 = _z[j + 1, i + 1];
 
         // 计算插值权重
         double dx = x1 - x0;
