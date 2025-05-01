@@ -1,43 +1,38 @@
 using OpenCvSharp;
 
 ///<summary>
-///分段线性插值
+///双线性插值
 ///</summary>
-public class CoordinateTransformationV7 : ICoordinateTransformation
+public class CoordinateTransformationV7
 {
-
     readonly BilinearInterpolator xInterpolator;
     readonly BilinearInterpolator yInterpolator;
 
-    public CoordinateTransformationV7(IList<Point> theory, IList<Point> real)
+    public CoordinateTransformationV7(IList<Point> src, IList<Point> dst, int pointNum)
     {
-        if (theory is null || real is null) throw new ArgumentNullException($"theory or real is null");
-
-        if (theory.Count == 9)
+        if (pointNum == 9)
         {
-            (var x, var y, var z_x, var z_y) = MakeData(theory, real, 3);
+            (var x, var y, var z_x, var z_y) = MakeData(src, dst, 3);
             this.xInterpolator = new BilinearInterpolator(x, y, z_x);
             this.yInterpolator = new BilinearInterpolator(x, y, z_y);
         }
-        else if (theory.Count == 25)
+        else if (pointNum == 25)
         {
-            (var x, var y, var z_x, var z_y) = MakeData(theory, real, 5);
+            (var x, var y, var z_x, var z_y) = MakeData(src, dst, 5);
             this.xInterpolator = new BilinearInterpolator(x, y, z_x);
             this.yInterpolator = new BilinearInterpolator(x, y, z_y);
         }
         else
         {
-            throw new ArgumentException($"只支持9/25点");
+            throw new ArgumentException($"{nameof(pointNum)}只支出9点，25点");
         }
     }
 
-    public IList<Point> CorrectionCoordinate(IList<Point> path) => GetPath(path);
-
-    List<Point> GetPath(IList<Point> path)
+    public IList<Point> GetPath(ReadOnlySpan<Point> path)
     {
-        if (path == null || path.Count == 0) throw new ArgumentException("路径不能为空");
-        List<Point> result = new(path.Count);
-        for (int i = 0; i < path.Count; i++)
+        if (path == null || path.Length == 0) throw new ArgumentException("路径不能为空");
+        List<Point> result = new(path.Length);
+        for (int i = 0; i < path.Length; i++)
         {
             var point = path[i];
             var x = xInterpolator.Interpolate(point.X, point.Y);
@@ -45,7 +40,7 @@ public class CoordinateTransformationV7 : ICoordinateTransformation
             var diffX = point.X - x;
             var diffY = point.Y - y;
 
-            result.Add(new Point(x + diffX, y + diffY));
+            result.Add(new Point(point.X + diffX, point.Y + diffY));
         }
         return result;
     }
@@ -59,7 +54,7 @@ public class CoordinateTransformationV7 : ICoordinateTransformation
 
         for (int i = 0; i < n; i++)
         {
-            List<Point> row = row = dst.Skip(i * n).Take(n).ToList();
+            List<Point> row = dst.Skip(i * n).Take(n).ToList();
             for (int j = 0; j < n; j++)
             {
                 z_x[i, j] = row[j].X;
